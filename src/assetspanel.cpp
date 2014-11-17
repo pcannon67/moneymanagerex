@@ -41,7 +41,7 @@
 wxBEGIN_EVENT_TABLE(mmAssetsListCtrl, mmListCtrl)
     EVT_LIST_ITEM_ACTIVATED(wxID_ANY,   mmAssetsListCtrl::OnListItemActivated)
     EVT_LIST_ITEM_SELECTED(wxID_ANY,    mmAssetsListCtrl::OnListItemSelected)
-    EVT_LIST_COL_END_DRAG(wxID_ANY,     mmAssetsListCtrl::OnItemResize)
+    //EVT_LIST_COL_END_DRAG(wxID_ANY,     mmAssetsListCtrl::OnItemResize)
     EVT_LIST_COL_CLICK(wxID_ANY,        mmAssetsListCtrl::OnColClick)
     EVT_LIST_COL_RIGHT_CLICK(wxID_ANY,  mmAssetsListCtrl::OnColRightClick)
     EVT_LIST_END_LABEL_EDIT(wxID_ANY,   mmAssetsListCtrl::OnEndLabelEdit)

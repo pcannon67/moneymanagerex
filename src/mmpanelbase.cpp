@@ -23,8 +23,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "model/Model_Setting.h"
 
 static int COL_MAX = 10;
-static const wxString tr1 = wxTRANSLATE("Initial Value");
-static const wxString tr2 = wxTRANSLATE("Current Value");
+static const wxString translate_me[] =
+{
+    wxTRANSLATE("Initial Value"),
+    wxTRANSLATE("Current Value")
+};
 
 static const char *ASSETS_LIST_JSON = R"({
 "1": {"name":" ", "format":2, "width":24},
@@ -38,14 +41,19 @@ static const char *ASSETS_LIST_JSON = R"({
 "key": "ASSET_COL_SETTINGS"
 })";
 
-
 class wxSQLite3Database;
 class wxListItemAttr;
 
+wxBEGIN_EVENT_TABLE(mmListCtrl, wxListCtrl)
+    EVT_LIST_COL_END_DRAG(wxID_ANY, mmListCtrl::OnItemResize)
+    //EVT_LIST_END_LABEL_EDIT(wxID_ANY, mmListCtrl::OnEndLabelEdit)
+wxEND_EVENT_TABLE()
+
 mmListCtrl::mmListCtrl(wxWindow *parent, wxWindowID winid)
     : wxListCtrl(parent, winid
-    , wxDefaultPosition, wxDefaultSize
-    , wxLC_REPORT | wxLC_HRULES | wxLC_VRULES | wxLC_VIRTUAL | wxLC_SINGLE_SEL)
+        , wxDefaultPosition, wxDefaultSize
+        , wxLC_REPORT | wxLC_HRULES | wxLC_VRULES | wxLC_VIRTUAL | wxLC_SINGLE_SEL
+    )
     , attr1_(new wxListItemAttr(mmColors::listBorderColor, mmColors::listAlternativeColor0, wxNullFont))
     , attr2_(new wxListItemAttr(mmColors::listBorderColor, mmColors::listAlternativeColor1, wxNullFont))
     , m_selected_row(-1)
@@ -53,6 +61,25 @@ mmListCtrl::mmListCtrl(wxWindow *parent, wxWindowID winid)
     , m_asc(true)
 {
     mmCreateColumns(winid);
+}
+
+mmListCtrl::~mmListCtrl()
+{
+    if (attr1_) delete attr1_;
+    if (attr2_) delete attr2_;
+    //TODO: save columns order
+    for (int i = 0; i < GetColumnCount(); i++) {
+        wxLogDebug("Col#%i is %i", i, GetColumnOrder(i));
+    }
+    wxLogDebug("Buy mmListCtrl -----");
+}
+
+void mmListCtrl::OnItemResize(wxListEvent& event)
+{
+    int i = event.GetColumn();
+    int width = event.GetItem().GetWidth();
+    //Model_Setting::instance().Set(wxString::Format("ASSETS_COL%d_WIDTH", i), width);
+    wxLogDebug("col:%i|width:%i", i, width);
 }
 
 void mmListCtrl::mmCreateColumns(int id)

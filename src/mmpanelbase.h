@@ -19,20 +19,18 @@
 #pragma once
 
 #include "util.h"
-#include <wx/listctrl.h>
 #include <wx/webview.h>
 #include <wx/webviewfshandler.h>
 //----------------------------------------------------------------------------
 
 class mmListCtrl: public wxListCtrl
 {
+    wxDECLARE_EVENT_TABLE();
 public:
+    mmListCtrl(){}
     mmListCtrl(wxWindow *parent, wxWindowID winid);
-    virtual ~mmListCtrl()
-    {
-        if (attr1_) delete attr1_;
-        if (attr2_) delete attr2_;
-    }
+    virtual ~mmListCtrl();
+
 public:
     wxListItemAttr *attr1_, *attr2_; // style1
     long m_selected_row;
@@ -40,11 +38,14 @@ public:
     bool m_asc;
 
 public:
-    void mmCreateColumns(int id);
     virtual wxListItemAttr* OnGetItemAttr(long row) const;
     wxString BuildPage(const wxString &title) const;
+private:
+    void OnItemResize(wxListEvent& event);
+    void mmCreateColumns(int id);
 };
 
+//----------------------------------------------------------------------------
 class mmPanelBase : public wxPanel
 {
 public:
@@ -68,4 +69,3 @@ public:
 public:
     virtual void sortTable() = 0;
 };
-//----------------------------------------------------------------------------
