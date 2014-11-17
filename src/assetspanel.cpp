@@ -442,8 +442,6 @@ void mmAssetsPanel::CreateControls()
     wxSplitterWindow* itemSplitterWindow10 = new wxSplitterWindow( this, wxID_STATIC,
         wxDefaultPosition, wxSize(200, 200), wxSP_3DBORDER|wxSP_3DSASH|wxNO_BORDER);
 
-    m_listCtrlAssets = new mmAssetsListCtrl(this, itemSplitterWindow10, wxID_ANY);
-
     wxSize imageSize(16, 16);
     m_imageList.reset(new wxImageList(imageSize.GetWidth(), imageSize.GetHeight()));
     //TODO: Provide better icons
@@ -457,36 +455,8 @@ void mmAssetsPanel::CreateControls()
     m_imageList->Add(wxBitmap(wxImage(uparrow_xpm).Scale(16, 16)));
     m_imageList->Add(wxBitmap(wxImage(downarrow_xpm).Scale(16, 16)));
 
+    m_listCtrlAssets = new mmAssetsListCtrl(this, itemSplitterWindow10, mmID_ASSETS_LIST);
     m_listCtrlAssets->SetImageList(m_imageList.get(), wxIMAGE_LIST_SMALL);
-
-    m_listCtrlAssets->InsertColumn(COL_ICON, " ", wxLIST_FORMAT_LEFT
-        , Model_Setting::instance().GetIntSetting(wxString::Format("ASSETS_COL%i_WIDTH", COL_ICON), 25));
-
-    m_listCtrlAssets->InsertColumn(COL_ID, _("ID"), wxLIST_FORMAT_RIGHT
-        , Model_Setting::instance().GetIntSetting(wxString::Format("ASSETS_COL%i_WIDTH", COL_ID),
-        wxLIST_AUTOSIZE_USEHEADER));
-
-    m_listCtrlAssets->InsertColumn(COL_NAME, _("Name"), wxLIST_FORMAT_LEFT
-        , Model_Setting::instance().GetIntSetting(wxString::Format("ASSETS_COL%i_WIDTH", COL_NAME), 150));
-
-    m_listCtrlAssets->InsertColumn(COL_TYPE, _("Type"), wxLIST_FORMAT_LEFT
-        , Model_Setting::instance().GetIntSetting(wxString::Format("ASSETS_COL%i_WIDTH", COL_TYPE),
-        wxLIST_AUTOSIZE_USEHEADER));
-
-    m_listCtrlAssets->InsertColumn(COL_VALUE_INITIAL, _("Initial Value"), wxLIST_FORMAT_RIGHT
-        , Model_Setting::instance().GetIntSetting(wxString::Format("ASSETS_COL%i_WIDTH", COL_VALUE_INITIAL),
-        wxLIST_AUTOSIZE_USEHEADER));
-
-    m_listCtrlAssets->InsertColumn(COL_VALUE_CURRENT, _("Current Value"), wxLIST_FORMAT_RIGHT
-        , Model_Setting::instance().GetIntSetting(wxString::Format("ASSETS_COL%i_WIDTH", COL_VALUE_CURRENT),
-        wxLIST_AUTOSIZE_USEHEADER));
-
-    m_listCtrlAssets->InsertColumn(COL_DATE, _("Date"), wxLIST_FORMAT_RIGHT
-        , Model_Setting::instance().GetIntSetting(wxString::Format("ASSETS_COL%i_WIDTH", COL_DATE),
-        wxLIST_AUTOSIZE_USEHEADER));
-
-    m_listCtrlAssets->InsertColumn(COL_NOTES, _("Notes"), wxLIST_FORMAT_LEFT
-        , Model_Setting::instance().GetIntSetting(wxString::Format("ASSETS_COL%i_WIDTH", COL_NOTES), 450));
 
     wxPanel* assets_panel = new wxPanel(itemSplitterWindow10, wxID_ANY
         , wxDefaultPosition, wxDefaultSize, wxNO_BORDER | wxTAB_TRAVERSAL);

@@ -116,6 +116,7 @@ enum id
     mmID_REPORTS,
     mmID_CHECKING,
     mmID_BROWSER,
+    mmID_ASSETS_LIST,
 
     MENU_BILLSDEPOSITS,
     MENU_STOCKS,
