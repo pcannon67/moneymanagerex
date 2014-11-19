@@ -565,7 +565,7 @@ const bool IsUpdateAvailable(const bool& bSilent, wxString& NewVersion)
             spec = wxString::Format("-RC%i", rc);
         else if(ReleaseType == "Unstable")
             spec = " Stable";
-        NewVersion = wxString::Format("%s.%s.%s%s", major, minor, patch, spec);
+        NewVersion = wxString::Format("%i.%i.%i%s", major, minor, patch, spec);
     }
     else
     {
