@@ -19,6 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "mmpanelbase.h"
 #include "constants.h"
+#include "util.h"
 #include <algorithm>
 #include "model/Model_Setting.h"
 
@@ -30,14 +31,14 @@ static const wxString translate_me[] =
 };
 
 static const char *ASSETS_LIST_JSON = R"({
-"1": {"name":" ", "format":2, "width":24},
-"2": {"name":"ID", "format":1, "width":0},
-"3": {"name":"Name", "format":0, "width":150},
-"4": {"name":"Date", "format":1, "width":100},
-"5": {"name":"Type", "format":0, "width":100},
-"6": {"name":"Initial Value", "format":1, "width":-2},
-"7": {"name":"Current Value", "format":1, "width":-2},
-"8": {"name":"Notes", "format":0, "width":450},
+"0": {"name":" ", "format":2, "width":24},
+"1": {"name":"ID", "format":1, "width":0},
+"2": {"name":"Name", "format":0, "width":150},
+"3": {"name":"Date", "format":1, "width":100},
+"4": {"name":"Type", "format":0, "width":100},
+"5": {"name":"Initial Value", "format":1, "width":-2},
+"6": {"name":"Current Value", "format":1, "width":-2},
+"7": {"name":"Notes", "format":0, "width":450},
 "key": "ASSET_COL_SETTINGS"
 })";
 
@@ -46,7 +47,6 @@ class wxListItemAttr;
 
 wxBEGIN_EVENT_TABLE(mmListCtrl, wxListCtrl)
     EVT_LIST_COL_END_DRAG(wxID_ANY, mmListCtrl::OnItemResize)
-    //EVT_LIST_END_LABEL_EDIT(wxID_ANY, mmListCtrl::OnEndLabelEdit)
 wxEND_EVENT_TABLE()
 
 mmListCtrl::mmListCtrl(wxWindow *parent, wxWindowID winid)
@@ -59,6 +59,7 @@ mmListCtrl::mmListCtrl(wxWindow *parent, wxWindowID winid)
     , m_selected_row(-1)
     , m_selected_col(0)
     , m_asc(true)
+    , m_json(wxEmptyString)
 {
     mmCreateColumns(winid);
 }
@@ -78,33 +79,34 @@ void mmListCtrl::OnItemResize(wxListEvent& event)
 {
     int i = event.GetColumn();
     int width = event.GetItem().GetWidth();
-    //Model_Setting::instance().Set(wxString::Format("ASSETS_COL%d_WIDTH", i), width);
-    wxLogDebug("col:%i|width:%i", i, width);
+    json::Object o = str2json_obj(m_json);
+    json::Object d = o[std::to_wstring(i)];
+    d[L"width"] = json::Number(width);
+    o[std::to_wstring(i)] = d;
+    m_json = json_obj2str(o);
+    const wxString& key = wxString(json::String(o[L"key"]));
+    Model_Setting::instance().Set(key, m_json);
 }
 
 void mmListCtrl::mmCreateColumns(int id)
 {
-    wxString json;
     switch (id)
     {
     case mmID_ASSETS_LIST:
-        json = ASSETS_LIST_JSON;
+        m_json = ASSETS_LIST_JSON;
         break;
     default:
-        json = wxEmptyString;
+        m_json = wxEmptyString;
     }
 
-    if (json.empty()) return;
+    if (m_json.empty()) return;
 
-    std::wstringstream ss;
-    ss << json.ToStdWstring();
-    json::Object o;
-    json::Reader::Read(o, ss);
-
+    json::Object o = str2json_obj(m_json);
     const wxString& key = wxString(json::String(o[L"key"]));
-    json = Model_Setting::instance().GetStringSetting(key, json);
+    m_json = Model_Setting::instance().GetStringSetting(key, m_json);
+    o = str2json_obj(m_json);
 
-    for (int i = 1; i < COL_MAX; i++)
+    for (int i = 0; i < COL_MAX; i++)
     {
         json::Object d = json::Object(o[std::to_wstring(i)]);
         if (d.Empty()) break;

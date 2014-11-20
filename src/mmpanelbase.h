@@ -43,6 +43,7 @@ public:
 private:
     void OnItemResize(wxListEvent& event);
     void mmCreateColumns(int id);
+    wxString m_json;
 };
 
 //----------------------------------------------------------------------------

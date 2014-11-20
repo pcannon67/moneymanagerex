@@ -685,3 +685,20 @@ void mmCalcValidator::OnChar(wxKeyEvent& event)
     event.Skip();
 }
 #endif
+
+json::Object str2json_obj(const wxString& str)
+{
+    std::wstringstream ss;
+    ss << str.ToStdWstring();
+    json::Object o;
+    json::Reader::Read(o, ss);
+    return o;
+}
+
+const wxString json_obj2str(const json::Object& o)
+{
+    std::wstringstream ss;
+    json::Writer::Write(o, ss);
+
+    return ss.str();
+}
