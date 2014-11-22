@@ -740,9 +740,9 @@ void mmCheckingPanel::OnFilterTransactions(wxMouseEvent& event)
 const wxString mmCheckingPanel::getItem(long item, long column)
 {
     if (item < 0 || item >= (int)m_trans.size()) return "";
-
+    const std::map<int, int>& id = m_listCtrlAccount->m_col_id;
     const Model_Checking::Full_Data& tran = this->m_trans.at(item);
-    switch (column)
+    switch (id.at(column))
     {
     case TransactionListCtrl::COL_ID:
         return wxString::Format("%i", tran.TRANSID).Trim();

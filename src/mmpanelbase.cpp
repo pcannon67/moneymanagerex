@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <algorithm>
 #include "model/Model_Setting.h"
 
-static int COL_MAX = 14;
+static int COL_MAX = 16;
 static const wxString translate_me[] =
 {
     wxTRANSLATE("Initial Value"),
@@ -78,6 +78,27 @@ static const char *STOCK_LIST_JSON = R"({
 "13": {"id": 13,"name":"Notes", "format":0, "width":450},
 "key": "STOCK_COL_SETTINGS",
 "sort_col": 2,
+"sort_order": 0
+})";
+
+static const char *BILLS_LIST_JSON = R"({
+"0": {"id": 0, "name":" ", "format":2, "width":24},
+"1": {"id": 1,"name":"ID", "format":1, "width":0},
+"2": {"id": 2,"name":"Next Due Date", "format":1, "width":95},
+"3": {"id": 3,"name":"Account", "format":0, "width":120},
+"4": {"id": 4,"name":"Payee", "format":0, "width":110},
+"5": {"id": 5,"name":"Status", "format":0, "width":0},
+"6": {"id": 6,"name":"Category", "format":0, "width":0},
+"7": {"id": 7,"name":"Type", "format":0, "width":95},
+"8": {"id": 8,"name":"Amount", "format":1, "width":95},
+"9": {"id": 9,"name":"Frequency", "format":0, "width":95},
+"10": {"id": 10,"name":"Remaining Days", "format":0, "width":140},
+"11": {"id": 11,"name":"Repetitions", "format":0, "width":0},
+"12": {"id": 12,"name":"Autorepeat", "format":0, "width":0},
+"13": {"id": 13,"name":"Number", "format":1, "width":0},
+"14": {"id": 14,"name":"Notes", "format":0, "width":450},
+"key": "BILLS_COL_SETTINGS",
+"sort_col": 6,
 "sort_order": 0
 })";
 
@@ -144,6 +165,9 @@ bool mmListCtrl::GetDefaultData(int winid, wxString& json)
     case mmID_STOCK_LIST:
         json = STOCK_LIST_JSON;
         break;
+    case mmID_BILLS_LIST:
+        json = BILLS_LIST_JSON;
+        break;        
     default:
         json = wxEmptyString;
     }
@@ -280,6 +304,11 @@ void mmListCtrl::OnHeaderReset(wxCommandEvent& event)
         this->DeleteAllColumns();
         Model_Setting::instance().Set(m_key, m_json);
         mmCreateColumns();
+    }
+    else
+    {
+        for (int i = 0; i < GetColumnCount(); i++)
+            SetColumnWidth(i, wxLIST_AUTOSIZE_USEHEADER);
     }
 }
 

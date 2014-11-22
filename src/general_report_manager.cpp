@@ -31,6 +31,9 @@
 #include <wx/richtooltip.h>
 #include <wx/sstream.h>
 
+#include "../resources/uparrow.xpm"
+#include "../resources/downarrow.xpm"
+
 class MyTreeItemData : public wxTreeItemData
 {
 public:
@@ -83,6 +86,7 @@ mmGeneralReportManager::mmGeneralReportManager(wxWindow* parent)
 
 mmGeneralReportManager::~mmGeneralReportManager()
 {
+    if (m_imageList) delete m_imageList;
 }
 
 bool mmGeneralReportManager::Create(wxWindow* parent
@@ -290,6 +294,12 @@ void mmGeneralReportManager::createEditorTab(wxNotebook* editors_notebook, int t
         box_sizer2->Add(info, g_flagsExpand);
 
         m_sqlListBox = new sqlListCtrl(this, panel, wxID_ANY);
+        wxSize imageSize(16, 16);
+        m_imageList = new wxImageList(imageSize.GetWidth(), imageSize.GetHeight());
+        m_imageList->Add(wxBitmap(wxImage(uparrow_xpm).Scale(16, 16)));
+        m_imageList->Add(wxBitmap(wxImage(downarrow_xpm).Scale(16, 16)));
+        m_sqlListBox->SetImageList(m_imageList, wxIMAGE_LIST_SMALL);
+
         box_sizer1->Add(box_sizer2, wxSizerFlags(g_flagsExpand).Proportion(0));
         box_sizer1->Add(m_sqlListBox, g_flagsExpand);
         sizer->Add(box_sizer1, wxSizerFlags(g_flagsExpand).Border(0).Proportion(0));

@@ -126,23 +126,26 @@ void StocksListCtrl::OnMouseRightClick(wxMouseEvent& event)
 
 wxString StocksListCtrl::OnGetItemText(long item, long column) const
 {
-    if (column == COL_ID)           return wxString::Format("%i", m_stocks[item].STOCKID).Trim();
-    if (column == COL_DATE)         return mmGetDateForDisplay(mmGetStorageStringAsDate(m_stocks[item].PURCHASEDATE));
-    if (column == COL_NAME)         return m_stocks[item].STOCKNAME;
-    if (column == COL_SYMBOL)       return m_stocks[item].SYMBOL;
-    if (column == COL_NUMBER)
+    const std::map<int, int>& id = m_col_id;
+    int c = id.at(column);
+
+    if (c == COL_ID)           return wxString::Format("%i", m_stocks[item].STOCKID).Trim();
+    if (c == COL_DATE)         return mmGetDateForDisplay(mmGetStorageStringAsDate(m_stocks[item].PURCHASEDATE));
+    if (c == COL_NAME)         return m_stocks[item].STOCKNAME;
+    if (c == COL_SYMBOL)       return m_stocks[item].SYMBOL;
+    if (c == COL_NUMBER)
     {
         int precision = m_stocks[item].NUMSHARES == floor(m_stocks[item].NUMSHARES) ? 0 : 4;
         return Model_Currency::toString(m_stocks[item].NUMSHARES, stock_panel_->m_currency, precision);
     }
-    if (column == COL_PRICE)        return Model_Currency::toString(m_stocks[item].PURCHASEPRICE, stock_panel_->m_currency);
-    if (column == COL_VALUE)        return Model_Currency::toString(m_stocks[item].VALUE, stock_panel_->m_currency);
-    if (column == COL_GAIN_LOSS)    return Model_Currency::toString(getGainLoss(item), stock_panel_->m_currency /*, 4*/);
-    if (column == COL_CURRENT)      return Model_Currency::toString(m_stocks[item].CURRENTPRICE, stock_panel_->m_currency /*, 4*/);
-    if (column == COL_CURRVALUE)    return Model_Currency::toString(m_stocks[item].CURRENTPRICE*m_stocks[item].NUMSHARES, stock_panel_->m_currency /*, 4*/);
-    if (column == COL_PRICEDATE)    return mmGetDateForDisplay(mmGetStorageStringAsDate(Model_Stock::instance().lastPriceDate(&m_stocks[item])));
-    if (column == COL_COMMISSION)   return Model_Currency::toString(m_stocks[item].COMMISSION, stock_panel_->m_currency);
-    if (column == COL_NOTES)
+    if (c == COL_PRICE)        return Model_Currency::toString(m_stocks[item].PURCHASEPRICE, stock_panel_->m_currency);
+    if (c == COL_VALUE)        return Model_Currency::toString(m_stocks[item].VALUE, stock_panel_->m_currency);
+    if (c == COL_GAIN_LOSS)    return Model_Currency::toString(getGainLoss(item), stock_panel_->m_currency /*, 4*/);
+    if (c == COL_CURRENT)      return Model_Currency::toString(m_stocks[item].CURRENTPRICE, stock_panel_->m_currency /*, 4*/);
+    if (c == COL_CURRVALUE)    return Model_Currency::toString(m_stocks[item].CURRENTPRICE*m_stocks[item].NUMSHARES, stock_panel_->m_currency /*, 4*/);
+    if (c == COL_PRICEDATE)    return mmGetDateForDisplay(mmGetStorageStringAsDate(Model_Stock::instance().lastPriceDate(&m_stocks[item])));
+    if (c == COL_COMMISSION)   return Model_Currency::toString(m_stocks[item].COMMISSION, stock_panel_->m_currency);
+    if (c == COL_NOTES)
     {
         wxString full_notes = m_stocks[item].NOTES;
         if (Model_Attachment::NrAttachments(Model_Attachment::reftype_desc(Model_Attachment::STOCK), m_stocks[item].STOCKID))

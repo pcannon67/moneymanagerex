@@ -108,7 +108,7 @@ extern const wxString ATTACHMENTS_FOLDER_APPDATA;
 
 enum id
 {
-    mmID_HOMEPAGE = wxID_HIGHEST + 10,
+    mmID_HOMEPAGE = wxID_HIGHEST,
     mmID_BILLS,
     mmID_STOCKS,
     mmID_ASSETS,
@@ -117,6 +117,8 @@ enum id
     mmID_CHECKING,
     mmID_BROWSER,
     mmID_ASSETS_LIST,
+    mmID_BILLS_LIST,
+    mmID_GRM_LIST,
     mmID_CHECKING_LIST,
     mmID_STOCK_LIST,
     MENU_HEADER_HIDE,

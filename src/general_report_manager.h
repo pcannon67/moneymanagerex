@@ -90,6 +90,7 @@ private:
     void showHelp();
 
     std::vector <std::vector <wxString> > m_sqlQueryData;
+    wxImageList* m_imageList;
 
     wxWebView* m_outputHTML;
 

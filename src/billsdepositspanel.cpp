@@ -101,9 +101,6 @@ billsDepositsListCtrl::billsDepositsListCtrl(mmBillsDepositsPanel* bdp, wxWindow
 : mmListCtrl(parent, winid)
 , m_bdp(bdp)
 {
-    // load the global variables
-    m_selected_col = Model_Setting::instance().GetIntSetting("BD_SORT_COL", m_bdp->col_sort());
-    m_asc = Model_Setting::instance().GetBoolSetting("BD_ASC", true);
 }
 
 billsDepositsListCtrl::~billsDepositsListCtrl()
@@ -119,22 +116,6 @@ mmBillsDepositsPanel::mmBillsDepositsPanel(wxWindow *parent, wxWindowID winid
     , m_infoTextMini(nullptr)
     , m_infoText(nullptr)
 {
-    ColName_[COL_ICON] = (" ");
-    ColName_[COL_ID] = _("ID");
-    ColName_[COL_DUE_DATE] = _("Next Due Date");
-    ColName_[COL_ACCOUNT] = _("Account");
-    ColName_[COL_PAYEE] = _("Payee");
-    ColName_[COL_STATUS] = _("Status");
-    ColName_[COL_CATEGORY] = _("Category");
-    ColName_[COL_TYPE] = _("Type");
-    ColName_[COL_AMOUNT] = _("Amount");
-    ColName_[COL_FREQUENCY] = _("Frequency");
-    ColName_[COL_REPEATS] = _("Repetitions");
-    ColName_[COL_AUTO] = _("Autorepeat");
-    ColName_[COL_DAYS] = _("Remaining Days");
-    ColName_[COL_NUMBER] = _("Number");
-    ColName_[COL_NOTES] = _("Notes");
-
     this->tips_.Add(_("MMEX allows regular payments to be set up as transactions. These transactions can also be regular deposits, or transfers that will occur at some future time. These transactions act as a reminder that an event is about to occur, and appears on the Home Page 14 days before the transaction is due. "));
     this->tips_.Add(_("Tip: These transactions can be set up to activate – allowing the user to adjust any values on the due date."));
 
@@ -216,30 +197,17 @@ void mmBillsDepositsPanel::CreateControls()
 
     wxSize imageSize(16, 16);
     m_imageList = new wxImageList(imageSize.GetWidth(), imageSize.GetHeight());
+    m_imageList->Add(wxBitmap(wxImage(uparrow_xpm).Scale(16, 16)));
+    m_imageList->Add(wxBitmap(wxImage(downarrow_xpm).Scale(16, 16)));
     m_imageList->Add(wxBitmap(wxImage(error_xpm).Scale(16, 16)));
     m_imageList->Add(wxBitmap(wxImage(rt_exec_auto_xpm).Scale(16, 16)));
     m_imageList->Add(wxBitmap(wxImage(rt_exec_user_xpm).Scale(16, 16)));
-    m_imageList->Add(wxBitmap(wxImage(uparrow_xpm).Scale(16, 16)));
-    m_imageList->Add(wxBitmap(wxImage(downarrow_xpm).Scale(16, 16)));
 
-    listCtrlAccount_ = new billsDepositsListCtrl(this, itemSplitterWindowBillsDeposit);
+    listCtrlAccount_ = new billsDepositsListCtrl(this, itemSplitterWindowBillsDeposit, mmID_BILLS_LIST);
 
     listCtrlAccount_->SetImageList(m_imageList, wxIMAGE_LIST_SMALL);
-    for (const auto& column : ColName_)
-    {
-        wxListItem itemCol;
-        itemCol.SetText(column.second);
-        listCtrlAccount_->InsertColumn(column.first, column.second
-            , (column.first == COL_DUE_DATE) || (column.first == COL_AMOUNT)
-                || (column.first == COL_ID) || (column.first == COL_REPEATS)
-                ?  wxLIST_FORMAT_RIGHT : wxLIST_FORMAT_LEFT);
 
-        int col_x = Model_Setting::instance().GetIntSetting(wxString::Format("BD_COL%d_WIDTH", column.first)
-            , (column.first > 0 ? wxLIST_AUTOSIZE_USEHEADER : 150));
-        listCtrlAccount_->SetColumnWidth(column.first, col_x);
-    }
-
-    wxPanel* bdPanel = new wxPanel(itemSplitterWindowBillsDeposit, wxID_ANY
+    wxPanel* bdPanel = new wxPanel(itemSplitterWindowBillsDeposit, mmID_BILLS
         , wxDefaultPosition, wxDefaultSize, wxNO_BORDER | wxTAB_TRAVERSAL);
 
     itemSplitterWindowBillsDeposit->SplitHorizontally(listCtrlAccount_, bdPanel);
@@ -299,11 +267,6 @@ void mmBillsDepositsPanel::CreateControls()
 int mmBillsDepositsPanel::initVirtualListControl(int id)
 {
     listCtrlAccount_->DeleteAllItems();
-
-    wxListItem item;
-    item.SetMask(wxLIST_MASK_IMAGE);
-    item.SetImage(listCtrlAccount_->m_asc ? 4 : 3);
-    listCtrlAccount_->SetColumn(listCtrlAccount_->m_selected_col, item);
 
     bills_.clear();
     const auto split = Model_Budgetsplittransaction::instance().get_all();
@@ -421,8 +384,9 @@ void billsDepositsListCtrl::OnItemRightClick(wxMouseEvent& event)
 
 wxString mmBillsDepositsPanel::getItem(long item, long column)
 {
+    const std::map<int, int>& id = listCtrlAccount_->m_col_id;
     const Model_Billsdeposits::Full_Data& bill = this->bills_.at(item);
-    switch (column)
+    switch (id.at(column))
     {
     case COL_ID:
         return wxString::Format("%i", bill.BDID).Trim();
@@ -574,9 +538,9 @@ int billsDepositsListCtrl::OnGetItemImage(long item) const
 
     /* Returns the icon to be shown for each entry */
     if (daysRemainingStr == _("Inactive")) return -1;
-    if (daysRemaining < 0) return 0;
-    if (bd_repeat_auto) return 1;
-    if (bd_repeat_user) return 2;
+    if (daysRemaining < 0) return 2;
+    if (bd_repeat_auto) return 3;
+    if (bd_repeat_user) return 4;
 
     return -1;
 }

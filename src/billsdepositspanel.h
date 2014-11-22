@@ -89,8 +89,6 @@ public:
     /* Getter for Virtual List Control */
     wxString getItem(long item, long column);
     void RefreshList();
-    int getColumnsNumber() { return ColName_.size(); }
-    int col_sort() { return COL_DUE_DATE; }
 
     static wxString GetFrequency(const Model_Billsdeposits::Data* item);
     static wxString GetRemainingDays(const Model_Billsdeposits::Data* item);
@@ -144,7 +142,6 @@ private:
         COL_NOTES,
         COL_MAX, // number of columns
     };
-    std::map<int, wxString> ColName_;
 
     bool transFilterActive_;
     void OnFilterTransactions(wxMouseEvent& event);
