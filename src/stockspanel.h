@@ -68,20 +68,13 @@ private:
     void OnMouseRightClick(wxMouseEvent& event);
     void OnListLeftClick(wxMouseEvent& event);
     void OnListItemActivated(wxListEvent& event);
-    void OnColClick(wxListEvent& event);
     void OnMarkTransaction(wxCommandEvent& event);
     void OnMarkAllTransactions(wxCommandEvent& event);
     void OnListKeyDown(wxListEvent& event);
     void OnListItemSelected(wxListEvent& event);
-    void OnItemResize(wxListEvent& event);
 
     /* Headers Right Click*/
     int ColumnHeaderNr;
-    void OnColRightClick(wxListEvent& event);
-    void OnHeaderHide(wxCommandEvent& event);
-    void OnHeaderSort(wxCommandEvent& event);
-    void OnHeaderReset(wxCommandEvent& event);
-
 
     mmStocksPanel* stock_panel_;
     enum EColumn

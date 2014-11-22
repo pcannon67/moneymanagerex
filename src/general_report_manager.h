@@ -37,7 +37,6 @@ class sqlListCtrl : public mmListCtrl
 {
     wxDECLARE_NO_COPY_CLASS(sqlListCtrl);
 public:
-
     sqlListCtrl(mmGeneralReportManager *grm, wxWindow *parent
         , const wxWindowID id);
     virtual wxString OnGetItemText(long item, long column) const;

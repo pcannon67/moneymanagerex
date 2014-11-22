@@ -40,9 +40,6 @@ enum {
     MENU_TREEPOPUP_DELETE,
     MENU_TREEPOPUP_NEW,
     MENU_TREEPOPUP_ORGANIZE_ATTACHMENTS,
-    MENU_HEADER_HIDE,
-    MENU_HEADER_SORT,
-    MENU_HEADER_RESET,
 };
 
 /*******************************************************/
@@ -50,12 +47,6 @@ enum {
 wxBEGIN_EVENT_TABLE(StocksListCtrl, mmListCtrl)
     EVT_LIST_ITEM_ACTIVATED(wxID_ANY, StocksListCtrl::OnListItemActivated)
     EVT_LIST_ITEM_SELECTED(wxID_ANY, StocksListCtrl::OnListItemSelected)
-    EVT_LIST_COL_END_DRAG(wxID_ANY, StocksListCtrl::OnItemResize)
-    EVT_LIST_COL_CLICK(wxID_ANY, StocksListCtrl::OnColClick)
-    EVT_LIST_COL_RIGHT_CLICK(wxID_ANY, StocksListCtrl::OnColRightClick)
-    EVT_MENU(MENU_HEADER_HIDE, StocksListCtrl::OnHeaderHide)
-    EVT_MENU(MENU_HEADER_SORT, StocksListCtrl::OnHeaderSort)
-    EVT_MENU(MENU_HEADER_RESET, StocksListCtrl::OnHeaderReset)
     EVT_LIST_KEY_DOWN(wxID_ANY, StocksListCtrl::OnListKeyDown)
     EVT_MENU(MENU_TREEPOPUP_NEW, StocksListCtrl::OnNewStocks)
     EVT_MENU(MENU_TREEPOPUP_EDIT, StocksListCtrl::OnEditStocks)
@@ -118,13 +109,6 @@ StocksListCtrl::StocksListCtrl(mmStocksPanel* cp, wxWindow *parent, wxWindowID w
     if (!m_stocks.empty())
         EnsureVisible(m_stocks.size() - 1);
 
-}
-
-void StocksListCtrl::OnItemResize(wxListEvent& event)
-{
-    int i = event.GetColumn();
-    int width = event.GetItem().GetWidth();
-    Model_Setting::instance().Set(wxString::Format("STOCKS_COL%d_WIDTH", i), width);
 }
 
 void StocksListCtrl::OnMouseRightClick(wxMouseEvent& event)
@@ -340,75 +324,6 @@ void mmStocksPanel::OnListItemActivated(int selectedIndex)
 {
     call_dialog(selectedIndex);
     updateExtraStocksData(selectedIndex);
-}
-
-void StocksListCtrl::OnColClick(wxListEvent& event)
-{
-    int ColumnNr;
-    if (event.GetId() != MENU_HEADER_SORT)
-        ColumnNr = event.GetColumn();
-    else
-        ColumnNr = ColumnHeaderNr;
-    if (0 >= ColumnNr || ColumnNr >= getColumnsNumber()) return;
-
-    if (m_selected_col == ColumnNr && event.GetId() != MENU_HEADER_SORT) m_asc = !m_asc;
-
-    wxListItem item;
-    item.SetMask(wxLIST_MASK_IMAGE);
-    item.SetImage(-1);
-    SetColumn(m_selected_col, item);
-
-    m_selected_col = ColumnNr;
-
-    Model_Setting::instance().Set("STOCKS_ASC", m_asc);
-    Model_Setting::instance().Set("STOCKS_SORT_COL", m_selected_col);
-
-    int trx_id = -1;
-    if (m_selected_row>=0) trx_id = m_stocks[m_selected_row].STOCKID;
-    doRefreshItems(trx_id);
-    stock_panel_->OnListItemSelected(-1);
-}
-
-void StocksListCtrl::OnColRightClick(wxListEvent& event)
-{
-    ColumnHeaderNr = event.GetColumn();
-    if (0 > ColumnHeaderNr || ColumnHeaderNr >= getColumnsNumber()) return;
-    wxMenu menu;
-    menu.Append(MENU_HEADER_HIDE, _("Hide column"));
-    menu.Append(MENU_HEADER_SORT, _("Order by this column"));
-    menu.Append(MENU_HEADER_RESET, _("Reset columns size"));
-    PopupMenu(&menu);
-    this->SetFocus();
-}
-
-void StocksListCtrl::OnHeaderHide(wxCommandEvent& event)
-{
-    StocksListCtrl::SetColumnWidth(ColumnHeaderNr, 0);
-    const wxString parameter_name = wxString::Format("STOCKS_COL%i_WIDTH", ColumnHeaderNr);
-    Model_Setting::instance().Set(parameter_name, 0);
-}
-
-void StocksListCtrl::OnHeaderSort(wxCommandEvent& event)
-{
-    wxListEvent e;
-    e.SetId(MENU_HEADER_SORT);
-    StocksListCtrl::OnColClick(e);
-}
-
-void StocksListCtrl::OnHeaderReset(wxCommandEvent& event)
-{
-    wxString parameter_name;
-    for (int i = 0; i < getColumnsNumber(); i++)
-         {
-        StocksListCtrl::SetColumnWidth(i, wxLIST_AUTOSIZE_USEHEADER);
-        parameter_name = wxString::Format("STOCKS_COL%i_WIDTH", i);
-        Model_Setting::instance().Set(parameter_name, StocksListCtrl::GetColumnWidth(i));
-        }
-    wxListEvent e;
-    e.SetId(MENU_HEADER_SORT);
-    ColumnHeaderNr = col_sort();
-    m_asc = true;
-    StocksListCtrl::OnColClick(e);
 }
 
 void StocksListCtrl::doRefreshItems(int trx_id)

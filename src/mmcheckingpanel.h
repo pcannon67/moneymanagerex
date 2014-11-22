@@ -36,11 +36,9 @@ class mmGUIFrame;
 class TransactionListCtrl : public mmListCtrl
 {
 public:
-
     TransactionListCtrl(mmCheckingPanel *cp, wxWindow *parent
         , const wxWindowID id);
 
-    void createColumns(mmListCtrl &lst);
     enum EIcons //m_imageList
     {
         ICON_RECONCILED,
@@ -182,7 +180,6 @@ private:
 
     void OnMouseRightClick(wxMouseEvent& event);
     void OnListLeftClick(wxMouseEvent& event);
-    void OnItemResize(wxListEvent& event);
     void OnListItemSelected(wxListEvent& event);
     void OnListItemActivated(wxListEvent& event);
     void OnMarkTransaction(wxCommandEvent& event);

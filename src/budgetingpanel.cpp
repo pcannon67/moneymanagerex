@@ -53,9 +53,6 @@ enum
     ID_DIALOG_BUDGETENTRY_SUMMARY_EXPENSES_EST,
     ID_DIALOG_BUDGETENTRY_SUMMARY_EXPENSES_ACT,
     ID_DIALOG_BUDGETENTRY_SUMMARY_EXPENSES_DIF,
-    MENU_HEADER_HIDE,
-    MENU_HEADER_SORT,
-    MENU_HEADER_RESET,
 };
 
 static const wxString VIEW_ALL = wxTRANSLATE("View All Budget Categories");
@@ -74,10 +71,6 @@ wxEND_EVENT_TABLE()
 wxBEGIN_EVENT_TABLE(budgetingListCtrl, wxListCtrl)
     EVT_LIST_ITEM_SELECTED(wxID_ANY, budgetingListCtrl::OnListItemSelected)
     EVT_LIST_ITEM_ACTIVATED(wxID_ANY, budgetingListCtrl::OnListItemActivated)
-    EVT_LIST_COL_END_DRAG(wxID_ANY, budgetingListCtrl::OnItemResize)
-    EVT_LIST_COL_RIGHT_CLICK(wxID_ANY, budgetingListCtrl::OnColRightClick)
-    EVT_MENU(MENU_HEADER_HIDE, budgetingListCtrl::OnHeaderHide)
-    EVT_MENU(MENU_HEADER_RESET, budgetingListCtrl::OnHeaderReset)
 wxEND_EVENT_TABLE()
 /*******************************************************/
 mmBudgetingPanel::mmBudgetingPanel(int budgetYearID
@@ -510,44 +503,6 @@ void mmBudgetingPanel::DisplayBudgetingDetails(int budgetYearID)
 }
 
 /*******************************************************/
-void budgetingListCtrl::OnItemResize(wxListEvent& event)
-{
-    int i = event.GetColumn();
-    int width = event.GetItem().GetWidth();
-    Model_Setting::instance().Set(wxString::Format("BUDGET_COL%d_WIDTH", i), width);
-}
-
-void budgetingListCtrl::OnColRightClick(wxListEvent& event)
-{
-    ColumnHeaderNr = event.GetColumn();
-    if (0 >= ColumnHeaderNr || ColumnHeaderNr > cp_->col_max()) return;
-    wxMenu menu;
-    menu.Append(MENU_HEADER_HIDE, _("Hide column"));
-    //menu.Append(MENU_HEADER_SORT, _("Order by this column"));
-    menu.Append(MENU_HEADER_RESET, _("Reset columns size"));
-    PopupMenu(&menu);
-    this->SetFocus();
-}
-
-void budgetingListCtrl::OnHeaderHide(wxCommandEvent& event)
-{
-    budgetingListCtrl::SetColumnWidth(ColumnHeaderNr, 0);
-    const wxString parameter_name = wxString::Format("BUDGET_COL%i_WIDTH", ColumnHeaderNr);
-    Model_Setting::instance().Set(parameter_name, 0);
-}
-void budgetingListCtrl::OnHeaderReset(wxCommandEvent& event)
-{
-    wxString parameter_name;
-    for (int i = 0; i < cp_->col_max(); i++)
-    {
-        budgetingListCtrl::SetColumnWidth(i, wxLIST_AUTOSIZE_USEHEADER);
-        if (i == (cp_->col_max()-1))
-            budgetingListCtrl::SetColumnWidth(i, 100);
-        parameter_name = wxString::Format("BUDGET_COL%i_WIDTH", i);
-        Model_Setting::instance().Set(parameter_name, budgetingListCtrl::GetColumnWidth(i));
-    }
-}
-
 void budgetingListCtrl::OnListItemSelected(wxListEvent& event)
 {
     selectedIndex_ = event.GetIndex();

@@ -46,9 +46,6 @@ enum
     MENU_POPUP_BD_ENTER_OCCUR,
     MENU_POPUP_BD_SKIP_OCCUR,
     MENU_TREEPOPUP_ORGANIZE_ATTACHMENTS,
-    MENU_HEADER_HIDE,
-    MENU_HEADER_SORT,
-    MENU_HEADER_RESET,
 };
 
 const wxString BILLSDEPOSITS_REPEATS[] =
@@ -88,13 +85,6 @@ wxBEGIN_EVENT_TABLE(billsDepositsListCtrl, mmListCtrl)
     EVT_RIGHT_DOWN(billsDepositsListCtrl::OnItemRightClick)
     EVT_LEFT_DOWN(billsDepositsListCtrl::OnListLeftClick)
     EVT_LIST_ITEM_SELECTED(wxID_ANY, billsDepositsListCtrl::OnListItemSelected)
-    EVT_LIST_COL_END_DRAG(wxID_ANY, billsDepositsListCtrl::OnItemResize)
-    EVT_LIST_COL_CLICK(wxID_ANY, billsDepositsListCtrl::OnColClick)
-    EVT_LIST_COL_RIGHT_CLICK(wxID_ANY, billsDepositsListCtrl::OnColRightClick)
-
-    EVT_MENU(MENU_HEADER_HIDE, billsDepositsListCtrl::OnHeaderHide)
-    EVT_MENU(MENU_HEADER_SORT, billsDepositsListCtrl::OnHeaderSort)
-    EVT_MENU(MENU_HEADER_RESET, billsDepositsListCtrl::OnHeaderReset)
 
     EVT_MENU(MENU_TREEPOPUP_NEW,              billsDepositsListCtrl::OnNewBDSeries)
     EVT_MENU(MENU_TREEPOPUP_EDIT,             billsDepositsListCtrl::OnEditBDSeries)
@@ -119,74 +109,6 @@ billsDepositsListCtrl::billsDepositsListCtrl(mmBillsDepositsPanel* bdp, wxWindow
 billsDepositsListCtrl::~billsDepositsListCtrl()
 {
 }
-
-void billsDepositsListCtrl::OnColClick(wxListEvent& event)
-{
-    int ColumnNr;
-    if (event.GetId() != MENU_HEADER_SORT)
-        ColumnNr = event.GetColumn();
-    else
-        ColumnNr = ColumnHeaderNr;
-    if (0 > ColumnNr || ColumnNr >= m_bdp->getColumnsNumber() || ColumnNr == 0) return;
-
-    if (m_selected_col == ColumnNr && event.GetId() != MENU_HEADER_SORT) m_asc = !m_asc;
-
-    wxListItem item;
-    item.SetMask(wxLIST_MASK_IMAGE);
-    item.SetImage(-1);
-    SetColumn(m_selected_col, item);
-
-    m_selected_col = ColumnNr;
-
-    Model_Setting::instance().Set("BD_ASC", m_asc);
-    Model_Setting::instance().Set("BD_SORT_COL", m_selected_col);
-
-    int id = -1;
-    if (m_selected_row >= 0) id = m_bdp->bills_[m_selected_row].BDID;
-    refreshVisualList(m_bdp->initVirtualListControl(id));
-}
-
-void billsDepositsListCtrl::OnColRightClick(wxListEvent& event)
-{
-    ColumnHeaderNr = event.GetColumn();
-    if (0 > ColumnHeaderNr || ColumnHeaderNr >= m_bdp->getColumnsNumber()) return;
-    wxMenu menu;
-    menu.Append(MENU_HEADER_HIDE, _("Hide column"));
-    menu.Append(MENU_HEADER_SORT, _("Order by this column"));
-    menu.Append(MENU_HEADER_RESET, _("Reset columns size"));
-    PopupMenu(&menu);
-    this->SetFocus();
-}
-
-void billsDepositsListCtrl::OnHeaderHide(wxCommandEvent& event)
-{
-    billsDepositsListCtrl::SetColumnWidth(ColumnHeaderNr, 0);
-    const wxString parameter_name = wxString::Format("BD_COL%i_WIDTH", ColumnHeaderNr);
-    Model_Setting::instance().Set(parameter_name, 0);
-}
-
-void billsDepositsListCtrl::OnHeaderSort(wxCommandEvent& event)
-{
-    wxListEvent e;
-    e.SetId(MENU_HEADER_SORT);
-    billsDepositsListCtrl::OnColClick(e);
-}
-
-void billsDepositsListCtrl::OnHeaderReset(wxCommandEvent& event)
-{
-    wxString parameter_name;
-    for (int i = 0; i <= m_bdp->getColumnsNumber(); i++)
-    {
-        billsDepositsListCtrl::SetColumnWidth(i, wxLIST_AUTOSIZE_USEHEADER);
-        parameter_name = wxString::Format("BD_COL%i_WIDTH", i);
-        Model_Setting::instance().Set(parameter_name, billsDepositsListCtrl::GetColumnWidth(i));
-    }
-    wxListEvent e;
-    e.SetId(MENU_HEADER_SORT);
-    ColumnHeaderNr = m_bdp->col_sort();
-    m_asc = true;
-    billsDepositsListCtrl::OnColClick(e);
-    }
 
 mmBillsDepositsPanel::mmBillsDepositsPanel(wxWindow *parent, wxWindowID winid
     , const wxPoint& pos, const wxSize& size, long style, const wxString& name)
@@ -462,13 +384,6 @@ void mmBillsDepositsPanel::OnOpenAttachment(wxCommandEvent& event)
 }
 
 /*******************************************************/
-void billsDepositsListCtrl::OnItemResize(wxListEvent& event)
-{
-    int i = event.GetColumn();
-    int width = event.GetItem().GetWidth();
-    Model_Setting::instance().Set(wxString::Format("BD_COL%d_WIDTH", i), width);
-}
-
 void billsDepositsListCtrl::OnItemRightClick(wxMouseEvent& event)
 {
     if (m_selected_row > -1)

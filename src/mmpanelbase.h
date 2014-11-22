@@ -26,24 +26,35 @@
 class mmListCtrl: public wxListCtrl
 {
     wxDECLARE_EVENT_TABLE();
+    wxDECLARE_NO_COPY_CLASS(mmListCtrl);
 public:
     mmListCtrl(){}
     mmListCtrl(wxWindow *parent, wxWindowID winid);
     virtual ~mmListCtrl();
-
-public:
-    wxListItemAttr *attr1_, *attr2_; // style1
+    int mmGetId(int defID);
     long m_selected_row;
     int m_selected_col;
     bool m_asc;
-
+public:
+    wxListItemAttr *attr1_, *attr2_; // style1
+    std::map <int, int> m_col_id; //mmListCtrl item <column no, ID>
 public:
     virtual wxListItemAttr* OnGetItemAttr(long row) const;
     wxString BuildPage(const wxString &title) const;
 private:
-    void OnItemResize(wxListEvent& event);
-    void mmCreateColumns(int id);
+    bool mmListCtrl::GetDefaultData(int winid, wxString& json);
+    void OnMouseRightClick(wxMouseEvent& event);
+    /* Headers Right Click*/
+    void OnColRightClick(wxListEvent& event);
+    void OnColClick(wxListEvent& event);
+    void OnHeaderHide(wxCommandEvent& event);
+    void OnHeaderSort(wxCommandEvent& event);
+    void OnHeaderReset(wxCommandEvent& event);
+    //
+    void OnListLeftClick(wxMouseEvent& event);
+    void mmCreateColumns();
     wxString m_json;
+    wxString m_key;
 };
 
 //----------------------------------------------------------------------------
@@ -69,4 +80,6 @@ public:
     }
 public:
     virtual void sortTable() = 0;
+protected:
+    mmListCtrl *m_listCtrl;
 };

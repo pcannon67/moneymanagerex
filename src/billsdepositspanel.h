@@ -59,12 +59,6 @@ private:
     void OnMarkAllTransactions(wxCommandEvent& event);
     void OnListKeyDown(wxListEvent& event);
     void OnListItemSelected(wxListEvent& event);
-    void OnItemResize(wxListEvent& event);
-    void OnColClick(wxListEvent& event);
-    void OnColRightClick(wxListEvent& event);
-    void OnHeaderHide(wxCommandEvent& event);
-    void OnHeaderSort(wxCommandEvent& event);
-    void OnHeaderReset(wxCommandEvent& event);
     int ColumnHeaderNr;
 
     void refreshVisualList(int selected_index = -1);

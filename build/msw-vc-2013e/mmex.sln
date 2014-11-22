@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wxsqlite", "mmex_wxsqlite.vcxproj", "{C45512B5-AEF8-5C27-BB1E-E97B298FFF91}"
 EndProject
@@ -12,6 +12,10 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
 		Debug|x64 = Debug|x64
+		DLL Debug|Win32 = DLL Debug|Win32
+		DLL Debug|x64 = DLL Debug|x64
+		DLL Release|Win32 = DLL Release|Win32
+		DLL Release|x64 = DLL Release|x64
 		Release|Win32 = Release|Win32
 		Release|x64 = Release|x64
 	EndGlobalSection
@@ -20,6 +24,10 @@ Global
 		{C45512B5-AEF8-5C27-BB1E-E97B298FFF91}.Debug|Win32.Build.0 = Debug|Win32
 		{C45512B5-AEF8-5C27-BB1E-E97B298FFF91}.Debug|x64.ActiveCfg = Debug|x64
 		{C45512B5-AEF8-5C27-BB1E-E97B298FFF91}.Debug|x64.Build.0 = Debug|x64
+		{C45512B5-AEF8-5C27-BB1E-E97B298FFF91}.DLL Debug|Win32.ActiveCfg = Debug|Win32
+		{C45512B5-AEF8-5C27-BB1E-E97B298FFF91}.DLL Debug|x64.ActiveCfg = Debug|x64
+		{C45512B5-AEF8-5C27-BB1E-E97B298FFF91}.DLL Release|Win32.ActiveCfg = Release|Win32
+		{C45512B5-AEF8-5C27-BB1E-E97B298FFF91}.DLL Release|x64.ActiveCfg = Release|x64
 		{C45512B5-AEF8-5C27-BB1E-E97B298FFF91}.Release|Win32.ActiveCfg = Release|Win32
 		{C45512B5-AEF8-5C27-BB1E-E97B298FFF91}.Release|Win32.Build.0 = Release|Win32
 		{C45512B5-AEF8-5C27-BB1E-E97B298FFF91}.Release|x64.ActiveCfg = Release|x64
@@ -28,6 +36,10 @@ Global
 		{4B5CA777-A685-561F-BC81-282D83A5C463}.Debug|Win32.Build.0 = Debug|Win32
 		{4B5CA777-A685-561F-BC81-282D83A5C463}.Debug|x64.ActiveCfg = Debug|x64
 		{4B5CA777-A685-561F-BC81-282D83A5C463}.Debug|x64.Build.0 = Debug|x64
+		{4B5CA777-A685-561F-BC81-282D83A5C463}.DLL Debug|Win32.ActiveCfg = Debug|Win32
+		{4B5CA777-A685-561F-BC81-282D83A5C463}.DLL Debug|x64.ActiveCfg = Debug|x64
+		{4B5CA777-A685-561F-BC81-282D83A5C463}.DLL Release|Win32.ActiveCfg = Release|Win32
+		{4B5CA777-A685-561F-BC81-282D83A5C463}.DLL Release|x64.ActiveCfg = Release|x64
 		{4B5CA777-A685-561F-BC81-282D83A5C463}.Release|Win32.ActiveCfg = Release|Win32
 		{4B5CA777-A685-561F-BC81-282D83A5C463}.Release|Win32.Build.0 = Release|Win32
 		{4B5CA777-A685-561F-BC81-282D83A5C463}.Release|x64.ActiveCfg = Release|x64
@@ -36,6 +48,10 @@ Global
 		{23918169-892B-5A86-9E95-79789698518E}.Debug|Win32.Build.0 = Debug|Win32
 		{23918169-892B-5A86-9E95-79789698518E}.Debug|x64.ActiveCfg = Debug|x64
 		{23918169-892B-5A86-9E95-79789698518E}.Debug|x64.Build.0 = Debug|x64
+		{23918169-892B-5A86-9E95-79789698518E}.DLL Debug|Win32.ActiveCfg = Debug|Win32
+		{23918169-892B-5A86-9E95-79789698518E}.DLL Debug|x64.ActiveCfg = Debug|x64
+		{23918169-892B-5A86-9E95-79789698518E}.DLL Release|Win32.ActiveCfg = Release|Win32
+		{23918169-892B-5A86-9E95-79789698518E}.DLL Release|x64.ActiveCfg = Release|x64
 		{23918169-892B-5A86-9E95-79789698518E}.Release|Win32.ActiveCfg = Release|Win32
 		{23918169-892B-5A86-9E95-79789698518E}.Release|Win32.Build.0 = Release|Win32
 		{23918169-892B-5A86-9E95-79789698518E}.Release|x64.ActiveCfg = Release|x64

@@ -39,29 +39,22 @@
 /*******************************************************/
 
 wxBEGIN_EVENT_TABLE(mmAssetsListCtrl, mmListCtrl)
-    EVT_LIST_ITEM_ACTIVATED(wxID_ANY,   mmAssetsListCtrl::OnListItemActivated)
-    EVT_LIST_ITEM_SELECTED(wxID_ANY,    mmAssetsListCtrl::OnListItemSelected)
-    //EVT_LIST_COL_END_DRAG(wxID_ANY,     mmAssetsListCtrl::OnItemResize)
-    EVT_LIST_COL_CLICK(wxID_ANY,        mmAssetsListCtrl::OnColClick)
-    EVT_LIST_COL_RIGHT_CLICK(wxID_ANY,  mmAssetsListCtrl::OnColRightClick)
-    EVT_LIST_END_LABEL_EDIT(wxID_ANY,   mmAssetsListCtrl::OnEndLabelEdit)
-    EVT_RIGHT_DOWN(mmAssetsListCtrl::OnMouseRightClick)
-    EVT_LEFT_DOWN(mmAssetsListCtrl::OnListLeftClick)
+EVT_LIST_ITEM_ACTIVATED(wxID_ANY, mmAssetsListCtrl::OnListItemActivated)
+EVT_LIST_ITEM_SELECTED(wxID_ANY, mmAssetsListCtrl::OnListItemSelected)
+EVT_LIST_END_LABEL_EDIT(wxID_ANY, mmAssetsListCtrl::OnEndLabelEdit)
+EVT_LEFT_DOWN(mmAssetsListCtrl::OnListLeftClick)
+EVT_RIGHT_DOWN(mmAssetsListCtrl::OnMouseRightClick)
 
-    EVT_MENU(MENU_TREEPOPUP_NEW,    mmAssetsListCtrl::OnNewAsset)
-    EVT_MENU(MENU_TREEPOPUP_EDIT,   mmAssetsListCtrl::OnEditAsset)
-    EVT_MENU(MENU_TREEPOPUP_DELETE, mmAssetsListCtrl::OnDeleteAsset)
-    EVT_MENU(MENU_ON_DUPLICATE_TRANSACTION, mmAssetsListCtrl::OnDuplicateAsset)
-	EVT_MENU(MENU_TREEPOPUP_ORGANIZE_ATTACHMENTS, mmAssetsListCtrl::OnOrganizeAttachments)
+EVT_MENU(MENU_TREEPOPUP_NEW, mmAssetsListCtrl::OnNewAsset)
+EVT_MENU(MENU_TREEPOPUP_EDIT, mmAssetsListCtrl::OnEditAsset)
+EVT_MENU(MENU_TREEPOPUP_DELETE, mmAssetsListCtrl::OnDeleteAsset)
+EVT_MENU(MENU_ON_DUPLICATE_TRANSACTION, mmAssetsListCtrl::OnDuplicateAsset)
+EVT_MENU(MENU_TREEPOPUP_ORGANIZE_ATTACHMENTS, mmAssetsListCtrl::OnOrganizeAttachments)
 
-    EVT_MENU(MENU_HEADER_HIDE, mmAssetsListCtrl::OnHeaderHide)
-    EVT_MENU(MENU_HEADER_SORT, mmAssetsListCtrl::OnHeaderSort)
-    EVT_MENU(MENU_HEADER_RESET, mmAssetsListCtrl::OnHeaderReset)
-
-    EVT_LIST_KEY_DOWN(wxID_ANY, mmAssetsListCtrl::OnListKeyDown)
+EVT_LIST_KEY_DOWN(wxID_ANY, mmAssetsListCtrl::OnListKeyDown)
 wxEND_EVENT_TABLE()
-/*******************************************************/
 
+/*******************************************************/
 mmAssetsListCtrl::mmAssetsListCtrl(mmAssetsPanel* cp, wxWindow *parent, wxWindowID winid)
     : mmListCtrl(parent, winid)
     , m_panel(cp)
@@ -71,13 +64,6 @@ mmAssetsListCtrl::mmAssetsListCtrl(mmAssetsPanel* cp, wxWindow *parent, wxWindow
     // load the global variables
     m_selected_col = Model_Setting::instance().GetIntSetting("ASSETS_SORT_COL", 0);
     m_asc = Model_Setting::instance().GetBoolSetting("ASSETS_ASC", true);
-}
-
-void mmAssetsListCtrl::OnItemResize(wxListEvent& event)
-{
-    int i = event.GetColumn();
-    int width = event.GetItem().GetWidth();
-    Model_Setting::instance().Set(wxString::Format("ASSETS_COL%d_WIDTH", i), width);
 }
 
 void mmAssetsListCtrl::OnMouseRightClick(wxMouseEvent& event)
@@ -126,7 +112,8 @@ void mmAssetsListCtrl::OnListLeftClick(wxMouseEvent& event)
 
 wxString mmAssetsListCtrl::OnGetItemText(long item, long column) const
 {
-    return m_panel->getItem(item, column);
+    int id = column;//TODO:
+    return m_panel->getItem(item, id);
 }
 
 void mmAssetsListCtrl::OnListItemSelected(wxListEvent& event)
@@ -275,36 +262,6 @@ bool mmAssetsListCtrl::EditAsset(Model_Asset::Data* pEntry)
     return edit;
 }
 
-void mmAssetsListCtrl::OnColClick(wxListEvent& event)
-{
-    int ColumnNr;
-    if (event.GetId() != MENU_HEADER_SORT)
-         ColumnNr = event.GetColumn();
-    else
-         ColumnNr = ColumnHeaderNr;
-    if (0 > ColumnNr || ColumnNr >= m_panel->col_max() || ColumnNr == 0) return;
-
-	if (m_selected_col == ColumnNr && event.GetId() != MENU_HEADER_SORT) m_asc = !m_asc;
-
-    wxListItem item;
-    item.SetMask(wxLIST_MASK_IMAGE);
-    item.SetImage(-1);
-    SetColumn(m_selected_col, item);
-
-    m_selected_col = ColumnNr;
-
-    item.SetImage(m_asc ? 8 : 7);
-    SetColumn(m_selected_col, item);
-
-    Model_Setting::instance().Set("ASSETS_ASC", m_asc);
-    Model_Setting::instance().Set("ASSETS_SORT_COL", m_selected_col);
-
-    int trx_id = -1;
-    if (m_selected_row>=0) trx_id = m_panel->m_assets[m_selected_row].ASSETID;
-
-    doRefreshItems(trx_id);
-}
-
 void mmAssetsListCtrl::OnEndLabelEdit(wxListEvent& event)
 {
     if (event.IsEditCancelled()) return;
@@ -312,48 +269,6 @@ void mmAssetsListCtrl::OnEndLabelEdit(wxListEvent& event)
     asset->ASSETNAME = event.m_item.m_text;
     Model_Asset::instance().save(asset);
     RefreshItems(event.GetIndex(), event.GetIndex());
-}
-
-void mmAssetsListCtrl::OnColRightClick(wxListEvent& event)
-{
-    ColumnHeaderNr = event.GetColumn();
-    if (0 > ColumnHeaderNr || ColumnHeaderNr >= m_panel->col_max()) return;
-    wxMenu menu;
-    menu.Append(MENU_HEADER_HIDE, _("Hide column"));
-    menu.Append(MENU_HEADER_SORT, _("Order by this column"));
-    menu.Append(MENU_HEADER_RESET, _("Reset columns size"));
-    PopupMenu(&menu);
-    this->SetFocus();
-}
-
-void mmAssetsListCtrl::OnHeaderHide(wxCommandEvent& event)
-{
-    mmAssetsListCtrl::SetColumnWidth(ColumnHeaderNr, 0);
-    const wxString parameter_name = wxString::Format("ASSETS_COL%i_WIDTH", ColumnHeaderNr);
-    Model_Setting::instance().Set(parameter_name, 0);
-}
-
-void mmAssetsListCtrl::OnHeaderSort(wxCommandEvent& event)
-{
-    wxListEvent e;
-    e.SetId(MENU_HEADER_SORT);
-    mmAssetsListCtrl::OnColClick(e);
-}
-
-void mmAssetsListCtrl::OnHeaderReset(wxCommandEvent& event)
-{
-    wxString parameter_name;
-    for (int i = 0; i < m_panel->col_max(); i++)
-    {
-        mmAssetsListCtrl::SetColumnWidth(i, wxLIST_AUTOSIZE_USEHEADER);
-        parameter_name = wxString::Format("ASSETS_COL%i_WIDTH", i);
-        Model_Setting::instance().Set(parameter_name, mmAssetsListCtrl::GetColumnWidth(i));
-    }
-    wxListEvent e;
-    e.SetId(MENU_HEADER_SORT);
-    ColumnHeaderNr = m_panel->col_sort();
-	m_asc = true;
-    mmAssetsListCtrl::OnColClick(e);
 }
 
 /*******************************************************/
@@ -602,8 +517,9 @@ void mmAssetsPanel::OnOpenAttachment(wxCommandEvent& event)
 
 wxString mmAssetsPanel::getItem(long item, long column)
 {
+    const std::map<int, int>& id = m_listCtrlAssets->m_col_id;
     const Model_Asset::Data& asset = this->m_assets[item];
-    switch (column)
+    switch (id.at(column))
     {
     case COL_ICON:
         return " ";

@@ -688,8 +688,10 @@ void mmCalcValidator::OnChar(wxKeyEvent& event)
 
 json::Object str2json_obj(const wxString& str)
 {
+    wxString s = str;
+    if (!(s.StartsWith("{") && s.EndsWith("}"))) s = "{}";
     std::wstringstream ss;
-    ss << str.ToStdWstring();
+    ss << s.ToStdWstring();
     json::Object o;
     json::Reader::Read(o, ss);
     return o;
