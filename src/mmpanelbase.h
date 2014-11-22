@@ -42,7 +42,7 @@ public:
     virtual wxListItemAttr* OnGetItemAttr(long row) const;
     wxString BuildPage(const wxString &title) const;
 private:
-    bool mmListCtrl::GetDefaultData(int winid, wxString& json);
+    bool GetDefaultData(int winid, wxString& json);
     void OnMouseRightClick(wxMouseEvent& event);
     /* Headers Right Click*/
     void OnColRightClick(wxListEvent& event);
