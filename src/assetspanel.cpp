@@ -112,8 +112,7 @@ void mmAssetsListCtrl::OnListLeftClick(wxMouseEvent& event)
 
 wxString mmAssetsListCtrl::OnGetItemText(long item, long column) const
 {
-    int id = column;//TODO:
-    return m_panel->getItem(item, id);
+    return m_panel->getItem(item, column);
 }
 
 void mmAssetsListCtrl::OnListItemSelected(wxListEvent& event)
@@ -124,7 +123,7 @@ void mmAssetsListCtrl::OnListItemSelected(wxListEvent& event)
 
 int mmAssetsListCtrl::OnGetItemImage(long item) const
 {
-    return Model_Asset::type(m_panel->m_assets[item]);
+    return Model_Asset::type(m_panel->m_assets[item]) +2;
 }
 
 void mmAssetsListCtrl::OnListKeyDown(wxListEvent& event)
@@ -283,14 +282,14 @@ BEGIN_EVENT_TABLE(mmAssetsPanel, wxPanel)
 END_EVENT_TABLE()
 /*******************************************************/
 
-mmAssetsPanel::mmAssetsPanel(wxWindow *parent)
+mmAssetsPanel::mmAssetsPanel(wxWindow *parent, wxWindowID winid)
     : m_filter_type(Model_Asset::TYPE(-1))
     , m_listCtrlAssets()
     , itemStaticTextMainFilter_()
     , header_text_()
     , tips_()
 {
-    Create(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, wxPanelNameStr);
+    Create(parent, winid, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, wxPanelNameStr);
 }
 
 bool mmAssetsPanel::Create(wxWindow *parent
@@ -359,7 +358,8 @@ void mmAssetsPanel::CreateControls()
 
     wxSize imageSize(16, 16);
     m_imageList.reset(new wxImageList(imageSize.GetWidth(), imageSize.GetHeight()));
-    //TODO: Provide better icons
+    m_imageList->Add(wxBitmap(wxImage(uparrow_xpm).Scale(16, 16)));
+    m_imageList->Add(wxBitmap(wxImage(downarrow_xpm).Scale(16, 16)));
     m_imageList->Add(wxBitmap(wxImage(house_xpm).Scale(16, 16)));
     m_imageList->Add(wxBitmap(wxImage(car_xpm).Scale(16, 16)));
     m_imageList->Add(wxBitmap(wxImage(clock_xpm).Scale(16, 16)));
@@ -367,8 +367,6 @@ void mmAssetsPanel::CreateControls()
     m_imageList->Add(wxBitmap(wxImage(assets_xpm).Scale(16, 16)));
     m_imageList->Add(wxBitmap(wxImage(coin_xpm).Scale(16, 16)));
     m_imageList->Add(wxBitmap(wxImage(rubik_cube_xpm).Scale(16, 16)));
-    m_imageList->Add(wxBitmap(wxImage(uparrow_xpm).Scale(16, 16)));
-    m_imageList->Add(wxBitmap(wxImage(downarrow_xpm).Scale(16, 16)));
 
     m_listCtrlAssets = new mmAssetsListCtrl(this, itemSplitterWindow10, mmID_ASSETS_LIST);
     m_listCtrlAssets->SetImageList(m_imageList.get(), wxIMAGE_LIST_SMALL);
@@ -468,11 +466,6 @@ int mmAssetsPanel::initVirtualListControl(int id, int col, bool asc)
 {
     /* Clear all the records */
     m_listCtrlAssets->DeleteAllItems();
-
-    wxListItem item;
-    item.SetMask(wxLIST_MASK_IMAGE);
-    item.SetImage(asc ? 8 : 7);
-    m_listCtrlAssets->SetColumn(col, item);
 
     if (this->m_filter_type == Model_Asset::TYPE(-1)) // ALL
         this->m_assets = Model_Asset::instance().all();

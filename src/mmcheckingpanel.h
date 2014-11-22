@@ -41,14 +41,14 @@ public:
 
     enum EIcons //m_imageList
     {
+        ICON_DESC,
+        ICON_ASC,
         ICON_RECONCILED,
         ICON_VOID,
         ICON_FOLLOWUP,
         ICON_NONE,
-        ICON_DESC,
-        ICON_ASC,
         ICON_DUPLICATE,
-        ICON_TRASH
+        ICON_TRASH, 
     };
 
     enum EColumn
@@ -75,16 +75,7 @@ public:
         return res;
     }
 
-    EColumn g_sortcol; // index of column to sort
-    bool g_asc; // asc\desc sorting
-
-    bool getSortOrder() const { return m_asc; }
-    EColumn getSortColumn() const { return m_sortCol; }
-
-    void setSortOrder(bool asc) { m_asc = asc; }
-    void setSortColumn(EColumn col) { m_sortCol = col; }
-
-    void setColumnImage(EColumn col, int image);
+    void setColumnImage(int col, int image);
 
     void OnNewTransaction(wxCommandEvent& event);
     void OnDeleteTransaction(wxCommandEvent& event);
@@ -171,8 +162,6 @@ private:
     wxListItemAttr m_attr16; // user defined style 6
     wxListItemAttr m_attr17; // user defined style 7
 
-    EColumn m_sortCol;
-
     /* required overrides for virtual style list control */
     virtual wxString OnGetItemText(long item, long column) const;
     virtual int OnGetItemColumnImage(long item, long column) const;
@@ -190,16 +179,6 @@ private:
     void OnCopy(wxCommandEvent& WXUNUSED(event));
     void OnPaste(wxCommandEvent& WXUNUSED(event));
     int OnPaste(Model_Checking::Data* tran);
-
-    /* Sort Columns */
-    void OnColClick(wxListEvent& event);
-
-    /* Headers Right Click*/
-    int ColumnHeaderNr;
-    void OnColRightClick(wxListEvent& event);
-    void OnHeaderHide(wxCommandEvent& event);
-    void OnHeaderSort(wxCommandEvent& event);
-    void OnHeaderReset(wxCommandEvent& event);
 
     /* The topmost visible item - this will be used to set
     where to display the list again after refresh */

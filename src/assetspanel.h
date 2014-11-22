@@ -70,9 +70,10 @@ private:
 
 class mmAssetsPanel : public mmPanelBase
 {
+    wxDECLARE_NO_COPY_CLASS(mmAssetsPanel);
     wxDECLARE_EVENT_TABLE();
 public:
-    mmAssetsPanel(wxWindow *parent);
+    mmAssetsPanel(wxWindow *parent, wxWindowID winid);
 
     void updateExtraAssetData(int selIndex);
     int initVirtualListControl(int trx_id = -1, int col = 0, bool asc = true);
@@ -131,4 +132,5 @@ private:
         COL_NOTES,
         COL_MAX, // number of columns
     };
+
 };

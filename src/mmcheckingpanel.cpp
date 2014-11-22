@@ -66,39 +66,6 @@ wxBEGIN_EVENT_TABLE(mmCheckingPanel, wxPanel)
         , mmCheckingPanel::OnViewPopupSelected)
     EVT_SEARCHCTRL_SEARCH_BTN(wxID_FIND, mmCheckingPanel::OnSearchTxtEntered)
 wxEND_EVENT_TABLE()
-//----------------------------------------------------------------------------
-
-wxBEGIN_EVENT_TABLE(TransactionListCtrl, wxListCtrl)
-    EVT_LIST_ITEM_SELECTED(wxID_ANY, TransactionListCtrl::OnListItemSelected)
-    EVT_LIST_ITEM_ACTIVATED(wxID_ANY, TransactionListCtrl::OnListItemActivated)
-    EVT_RIGHT_DOWN(TransactionListCtrl::OnMouseRightClick)
-    EVT_LEFT_DOWN(TransactionListCtrl::OnListLeftClick)
-    EVT_LIST_KEY_DOWN(wxID_ANY,  TransactionListCtrl::OnListKeyDown)
-
-    EVT_MENU_RANGE(MENU_TREEPOPUP_MARKRECONCILED
-        , MENU_TREEPOPUP_MARKDELETE,        TransactionListCtrl::OnMarkTransaction)
-
-    EVT_MENU_RANGE(MENU_TREEPOPUP_MARKRECONCILED_ALL
-        , MENU_TREEPOPUP_DELETE_UNRECONCILED, TransactionListCtrl::OnMarkAllTransactions)
-    EVT_MENU(MENU_TREEPOPUP_SHOWTRASH,      TransactionListCtrl::OnShowChbClick)
-
-    EVT_MENU(MENU_TREEPOPUP_NEW2,           TransactionListCtrl::OnNewTransaction)
-    EVT_MENU(MENU_TREEPOPUP_DELETE2,        TransactionListCtrl::OnDeleteTransaction)
-    EVT_MENU(MENU_TREEPOPUP_EDIT2,          TransactionListCtrl::OnEditTransaction)
-    EVT_MENU(MENU_TREEPOPUP_MOVE2,          TransactionListCtrl::OnMoveTransaction)
-
-    EVT_MENU(MENU_ON_COPY_TRANSACTION,      TransactionListCtrl::OnCopy)
-    EVT_MENU(MENU_ON_PASTE_TRANSACTION,     TransactionListCtrl::OnPaste)
-    EVT_MENU(MENU_ON_NEW_TRANSACTION,       TransactionListCtrl::OnNewTransaction)
-    EVT_MENU(MENU_ON_DUPLICATE_TRANSACTION, TransactionListCtrl::OnDuplicateTransaction)
-    EVT_MENU_RANGE(MENU_ON_SET_UDC0, MENU_ON_SET_UDC7, TransactionListCtrl::OnSetUserColour)
-
-    EVT_MENU(MENU_TREEPOPUP_VIEW_SPLIT_CATEGORIES, TransactionListCtrl::OnViewSplitTransaction)
-    EVT_MENU(MENU_TREEPOPUP_ORGANIZE_ATTACHMENTS, TransactionListCtrl::OnOrganizeAttachments)
-
-    EVT_CHAR(TransactionListCtrl::OnChar)
-
-wxEND_EVENT_TABLE();
 
 //----------------------------------------------------------------------------
 
@@ -108,7 +75,7 @@ mmCheckingPanel::mmCheckingPanel(wxWindow *parent
     , int id
     )
     : filteredBalance_(0.0)
-    , m_listCtrlAccount()
+    , m_listCtrlAccount(nullptr)
     , m_AccountID(accountID)
     , m_account(Model_Account::instance().get(accountID))
     , m_currency(Model_Account::currency(m_account))
@@ -160,7 +127,7 @@ bool mmCheckingPanel::Create(
 void mmCheckingPanel::sortTable()
 {
     std::sort(this->m_trans.begin(), this->m_trans.end());
-    switch (m_listCtrlAccount->g_sortcol)
+    switch (m_listCtrlAccount->m_col_id.at(m_listCtrlAccount->m_selected_col))
     {
     case TransactionListCtrl::COL_ID:
         std::stable_sort(this->m_trans.begin(), this->m_trans.end(),SorterByTRANSID());
@@ -194,7 +161,7 @@ void mmCheckingPanel::sortTable()
         break;
     }
 
-    if (!m_listCtrlAccount->g_asc) std::reverse(this->m_trans.begin(), this->m_trans.end());
+    if (!m_listCtrlAccount->m_asc) std::reverse(this->m_trans.begin(), this->m_trans.end());
 }
 
 void mmCheckingPanel::filterTable()
@@ -267,7 +234,7 @@ void mmCheckingPanel::updateTable()
 
     setAccountSummary();
 
-    if (m_listCtrlAccount->g_sortcol == TransactionListCtrl::COL_STATUS)
+    if (m_listCtrlAccount->m_selected_col == TransactionListCtrl::COL_STATUS)
     {
         sortTable();
         m_listCtrlAccount->RefreshItems(0, m_trans.size() - 1);
@@ -292,7 +259,7 @@ void mmCheckingPanel::markSelectedTransaction(int trans_id)
 
     if (!m_trans.empty() && m_listCtrlAccount->m_selectedIndex < 0)
     {
-        if (m_listCtrlAccount->g_asc)
+        if (m_listCtrlAccount->m_asc)
             m_listCtrlAccount->EnsureVisible(static_cast<long>(m_trans.size()) - 1);
         else
             m_listCtrlAccount->EnsureVisible(0);
@@ -420,37 +387,19 @@ void mmCheckingPanel::CreateControls()
 
     wxSize imageSize(16, 16);
     m_imageList.reset(new wxImageList(imageSize.GetWidth(), imageSize.GetHeight()));
+    m_imageList->Add(wxImage(uparrow_xpm).Scale(16, 16));
+    m_imageList->Add(wxImage(downarrow_xpm).Scale(16, 16));
     m_imageList->Add(wxImage(reconciled_xpm).Scale(16, 16));
     m_imageList->Add(wxImage(void_xpm).Scale(16, 16));
     m_imageList->Add(wxImage(flag_xpm).Scale(16, 16));
     m_imageList->Add(wxImage(unreconciled_xpm).Scale(16, 16));
-    m_imageList->Add(wxImage(uparrow_xpm).Scale(16, 16));
-    m_imageList->Add(wxImage(downarrow_xpm).Scale(16, 16));
     m_imageList->Add(wxImage(duplicate_xpm).Scale(16, 16));
-    m_imageList->Add(wxImage(trash_xpm).Scale(16, 16));
+    m_imageList->Add(wxImage(trash_xpm).Scale(16, 16)); 
 
     m_listCtrlAccount = new TransactionListCtrl(this, itemSplitterWindow10
         , mmID_CHECKING_LIST);
 
     m_listCtrlAccount->SetImageList(m_imageList.get(), wxIMAGE_LIST_SMALL);
-    //m_listCtrlAccount->setSortOrder(m_listCtrlAccount->g_asc);
-    //m_listCtrlAccount->setSortColumn(m_listCtrlAccount->g_sortcol);
-    //m_listCtrlAccount->SetFocus();
-
-    // load the global variables
-    long val = m_listCtrlAccount->COL_DEF_SORT;
-    wxString strVal = Model_Setting::instance().GetStringSetting("CHECK_SORT_COL", wxString() << val);
-    if (strVal.ToLong(&val)) m_listCtrlAccount->g_sortcol = m_listCtrlAccount->toEColumn(val);
-    // --
-    val = 1; // asc sorting default
-    strVal = Model_Setting::instance().GetStringSetting("CHECK_ASC", wxString() << val);
-    if (strVal.ToLong(&val)) m_listCtrlAccount->g_asc = val != 0;
-
-    // --
-    m_listCtrlAccount->setSortColumn(m_listCtrlAccount->g_sortcol);
-    m_listCtrlAccount->setSortOrder(m_listCtrlAccount->g_asc);
-    m_listCtrlAccount->setColumnImage(m_listCtrlAccount->getSortColumn()
-        , m_listCtrlAccount->getSortOrder() ? m_listCtrlAccount->ICON_ASC : m_listCtrlAccount->ICON_DESC); // asc\desc sort mark (arrow)
 
     wxPanel *itemPanel12 = new wxPanel(itemSplitterWindow10, wxID_ANY
         , wxDefaultPosition, wxDefaultSize, wxNO_BORDER|wxTAB_TRAVERSAL);
@@ -828,11 +777,11 @@ void mmCheckingPanel::OnSearchTxtEntered(wxCommandEvent& event)
     long last = m_listCtrlAccount->GetItemCount() - 1;
     long selectedItem = m_listCtrlAccount->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
     if (selectedItem <= 0 || selectedItem >= last) //nothing selected
-        selectedItem = m_listCtrlAccount->g_asc ? last : 0;
+        selectedItem = m_listCtrlAccount->m_asc ? last : 0;
 
     while (selectedItem >= 0 && selectedItem <= last)
     {
-        m_listCtrlAccount->g_asc ?  selectedItem-- : selectedItem++;
+        m_listCtrlAccount->m_asc ?  selectedItem-- : selectedItem++;
         const wxString t = getItem(selectedItem, m_listCtrlAccount->COL_NOTES).Lower();
         if (t.Matches(search_string + "*"))
         {
@@ -923,12 +872,44 @@ void mmCheckingPanel::mmPlayTransactionSound()
     }
 }
 //----------------------------------------------------------------------------
+
+wxBEGIN_EVENT_TABLE(TransactionListCtrl, mmListCtrl)
+EVT_LIST_ITEM_SELECTED(wxID_ANY, TransactionListCtrl::OnListItemSelected)
+EVT_LIST_ITEM_ACTIVATED(wxID_ANY, TransactionListCtrl::OnListItemActivated)
+EVT_RIGHT_DOWN(TransactionListCtrl::OnMouseRightClick)
+EVT_LEFT_DOWN(TransactionListCtrl::OnListLeftClick)
+EVT_LIST_KEY_DOWN(wxID_ANY, TransactionListCtrl::OnListKeyDown)
+
+EVT_MENU_RANGE(MENU_TREEPOPUP_MARKRECONCILED
+, MENU_TREEPOPUP_MARKDELETE, TransactionListCtrl::OnMarkTransaction)
+
+EVT_MENU_RANGE(MENU_TREEPOPUP_MARKRECONCILED_ALL
+, MENU_TREEPOPUP_DELETE_UNRECONCILED, TransactionListCtrl::OnMarkAllTransactions)
+EVT_MENU(MENU_TREEPOPUP_SHOWTRASH, TransactionListCtrl::OnShowChbClick)
+
+EVT_MENU(MENU_TREEPOPUP_NEW2, TransactionListCtrl::OnNewTransaction)
+EVT_MENU(MENU_TREEPOPUP_DELETE2, TransactionListCtrl::OnDeleteTransaction)
+EVT_MENU(MENU_TREEPOPUP_EDIT2, TransactionListCtrl::OnEditTransaction)
+EVT_MENU(MENU_TREEPOPUP_MOVE2, TransactionListCtrl::OnMoveTransaction)
+
+EVT_MENU(MENU_ON_COPY_TRANSACTION, TransactionListCtrl::OnCopy)
+EVT_MENU(MENU_ON_PASTE_TRANSACTION, TransactionListCtrl::OnPaste)
+EVT_MENU(MENU_ON_NEW_TRANSACTION, TransactionListCtrl::OnNewTransaction)
+EVT_MENU(MENU_ON_DUPLICATE_TRANSACTION, TransactionListCtrl::OnDuplicateTransaction)
+EVT_MENU_RANGE(MENU_ON_SET_UDC0, MENU_ON_SET_UDC7, TransactionListCtrl::OnSetUserColour)
+
+EVT_MENU(MENU_TREEPOPUP_VIEW_SPLIT_CATEGORIES, TransactionListCtrl::OnViewSplitTransaction)
+EVT_MENU(MENU_TREEPOPUP_ORGANIZE_ATTACHMENTS, TransactionListCtrl::OnOrganizeAttachments)
+
+EVT_CHAR(TransactionListCtrl::OnChar)
+wxEND_EVENT_TABLE();
+
 TransactionListCtrl::TransactionListCtrl(
     mmCheckingPanel *cp,
     wxWindow *parent,
-    const wxWindowID id
-) :
-    mmListCtrl(parent, id),
+    const wxWindowID winid)
+    :
+    mmListCtrl(parent, winid),
     m_cp(cp),
     m_selectedIndex(-1),
     m_selectedForCopy(-1),
@@ -943,9 +924,6 @@ TransactionListCtrl::TransactionListCtrl(
     m_attr15(*wxBLACK, mmColors::userDefColor5, wxNullFont),
     m_attr16(*wxYELLOW, mmColors::userDefColor6, wxNullFont),
     m_attr17(*wxYELLOW, mmColors::userDefColor7, wxNullFont),
-    m_sortCol(COL_DEF_SORT),
-    g_sortcol(COL_DEF_SORT),
-    g_asc(true),
     m_selectedID(-1),
     topItemIndex_(-1)
 {
@@ -1189,7 +1167,7 @@ void TransactionListCtrl::OnMarkAllTransactions(wxCommandEvent& event)
 }
 //----------------------------------------------------------------------------
 
-void TransactionListCtrl::setColumnImage(EColumn col, int image)
+void TransactionListCtrl::setColumnImage(int col, int image)
 {
     wxListItem item;
     item.SetMask(wxLIST_MASK_IMAGE);
@@ -1498,7 +1476,7 @@ void TransactionListCtrl::refreshVisualList(int trans_id, bool filter)
     Hide();
 
     // decide whether top or down icon needs to be shown
-    setColumnImage(g_sortcol, g_asc ? ICON_ASC : ICON_DESC);
+    setColumnImage(m_selected_col, m_asc ? ICON_ASC : ICON_DESC);
     if (filter) m_cp->filterTable();
     SetItemCount(m_cp->m_trans.size());
     Show();
@@ -1506,7 +1484,7 @@ void TransactionListCtrl::refreshVisualList(int trans_id, bool filter)
     m_cp->markSelectedTransaction(trans_id);
 
     if (topItemIndex_ >= (long)m_cp->m_trans.size())
-        topItemIndex_ = g_asc ? (long)m_cp->m_trans.size() - 1 : 0;
+        topItemIndex_ = m_asc ? (long)m_cp->m_trans.size() - 1 : 0;
     if (m_selectedIndex > (long)m_cp->m_trans.size() - 1) m_selectedIndex = -1;
     if (topItemIndex_ < m_selectedIndex) topItemIndex_ = m_selectedIndex;
 

@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <algorithm>
 #include "model/Model_Setting.h"
 
-static int COL_MAX = 12;
+static int COL_MAX = 14;
 static const wxString translate_me[] =
 {
     wxTRANSLATE("Initial Value"),
@@ -40,14 +40,14 @@ static const char *ASSETS_LIST_JSON = R"({
 "6": {"id": 6,"name":"Current Value", "format":1, "width":100},
 "7": {"id": 7,"name":"Notes", "format":0, "width":450},
 "key": "ASSET_COL_SETTINGS",
-"sort_col": 0,
+"sort_col": 3,
 "sort_order": 0
 })";
 
 static const char *CHECKING_LIST_JSON = R"({
 "0": {"id": 0, "name":" ", "format":2, "width":24},
 "1": {"id": 1,"name":"ID", "format":1, "width":0},
-"2": {"id": 2,"name":"Date", "format":0, "width":100},
+"2": {"id": 2,"name":"Date", "format":1, "width":100},
 "3": {"id": 3,"name":"Number", "format":1, "width":85},
 "4": {"id": 4,"name":"Payee", "format":0, "width":165},
 "5": {"id": 5,"name":"Status", "format":0, "width":65},
@@ -57,9 +57,30 @@ static const char *CHECKING_LIST_JSON = R"({
 "9": {"id": 9,"name":"Balance", "format":1, "width":100},
 "10": {"id": 10,"name":"Notes", "format":0, "width":450},
 "key": "CHECKING_COL_SETTINGS",
-"sort_col": 0,
+"sort_col": 2,
 "sort_order": 0
 })";
+
+static const char *STOCK_LIST_JSON = R"({
+"0": {"id": 0, "name":" ", "format":2, "width":24},
+"1": {"id": 1,"name":"ID", "format":1, "width":0},
+"2": {"id": 2,"name":"Purchase Date", "format":1, "width":110},
+"3": {"id": 3,"name":"Share Name", "format":0, "width":120},
+"4": {"id": 4,"name":"Share Symbol", "format":0, "width":110},
+"5": {"id": 5,"name":"Number of Shares", "format":1, "width":95},
+"6": {"id": 6,"name":"Unit Price", "format":1, "width":95},
+"7": {"id": 7,"name":"Total Value", "format":1, "width":95},
+"8": {"id": 8,"name":"Gain/Loss", "format":1, "width":0},
+"9": {"id": 9,"name":"Curr. unit price", "format":1, "width":0},
+"10": {"id": 910,"name":"Curr. total value", "format":1, "width":0},
+"11": {"id": 11,"name":"Price Date", "format":1, "width":0},
+"12": {"id": 12,"name":"Commission", "format":1, "width":0},
+"13": {"id": 13,"name":"Notes", "format":0, "width":450},
+"key": "STOCK_COL_SETTINGS",
+"sort_col": 2,
+"sort_order": 0
+})";
+
 
 class wxSQLite3Database;
 class wxListItemAttr;
@@ -103,6 +124,8 @@ mmListCtrl::mmListCtrl(wxWindow *parent, wxWindowID winid)
         m_key = wxString(json::String(o[L"key"]));
         m_json = Model_Setting::instance().GetStringSetting(m_key, m_json);
         o = str2json_obj(m_json);
+        m_asc = json::Boolean(o[L"sort_order"]);
+        m_selected_col = json::Number(o[L"sort_col"]);
 
         mmCreateColumns();
     }
@@ -117,6 +140,9 @@ bool mmListCtrl::GetDefaultData(int winid, wxString& json)
         break;
     case mmID_CHECKING_LIST:
         json = CHECKING_LIST_JSON;
+        break;
+    case mmID_STOCK_LIST:
+        json = STOCK_LIST_JSON;
         break;
     default:
         json = wxEmptyString;
@@ -137,7 +163,7 @@ mmListCtrl::~mmListCtrl()
         json::Object d;
         wxListItem item;
         item.SetMask(wxLIST_MASK_FORMAT);
-        int col_order = GetColumnOrder(i);
+        int col_order = this->GetColumnOrder(i);
         if (GetColumn(i, item)){
             int id = json::Number(orig[std::to_wstring(i)][L"id"]);
             const auto name = orig[std::to_wstring(i)][L"name"];
@@ -189,7 +215,7 @@ void mmListCtrl::mmCreateColumns()
         const wxString& name = wxGetTranslation(wxString(json::String(d[L"name"])));
         int format = json::Number(d[L"format"]);
         int width = json::Number(d[L"width"]);
-        //int id = json::Number(d[L"id"]);
+
         wxListItem item;
         item.SetText(wxString::Format("%i|%s", i.second, name));
         item.SetWidth(width);
@@ -217,11 +243,11 @@ void mmListCtrl::OnColClick(wxListEvent& event)
 
     m_selected_col = ColumnNr;
 
-    item.SetImage(m_asc ? 8 : 7);
+    item.SetImage(m_asc ? 1 : 0);
     SetColumn(m_selected_col, item);
 
     //FIXME: linker error if x64
-    m_asc ? SortItems(mmCompareFunctionASC, (wxIntPtr)nullptr) : SortItems(mmCompareFunctionDESC, (wxIntPtr)nullptr);
+    //m_asc ? SortItems(mmCompareFunctionASC, (wxIntPtr)nullptr) : SortItems(mmCompareFunctionDESC, (wxIntPtr)nullptr);
 }
 
 void mmListCtrl::OnColRightClick(wxListEvent& event)

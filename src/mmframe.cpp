@@ -2481,7 +2481,7 @@ void mmGUIFrame::OnAssets(wxCommandEvent& /*event*/)
     o[L"module"] = json::String(L"Asset Panel");
     o[L"start"] = json::String(wxDateTime::Now().FormatISOCombined().ToStdWstring());
     wxSizer *sizer = cleanupHomePanel();
-    panelCurrent_ = new mmAssetsPanel(homePanel_);
+    panelCurrent_ = new mmAssetsPanel(homePanel_, mmID_ASSETS);
     sizer->Add(panelCurrent_, 1, wxGROW | wxALL, 1);
     homePanel_->Layout();
     menuPrintingEnable(true);

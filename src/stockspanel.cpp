@@ -66,40 +66,20 @@ StocksListCtrl::StocksListCtrl(mmStocksPanel* cp, wxWindow *parent, wxWindowID w
     , stock_panel_(cp)
     , m_imageList(0)
 {
-    ColName_[COL_ICON]      =  (" ");
-    ColName_[COL_ID]        = _("ID");
-    ColName_[COL_DATE]      = _("Purchase Date");
-    ColName_[COL_NAME]      = _("Share Name");
-    ColName_[COL_SYMBOL]    = _("Share Symbol");
-    ColName_[COL_NUMBER]    = _("Number of Shares");
-    ColName_[COL_PRICE]     = _("Unit Price");
-    ColName_[COL_VALUE]     = _("Total Value");
-    ColName_[COL_GAIN_LOSS] = _("Gain/Loss");
-    ColName_[COL_CURRENT]   = _("Curr. unit price");
-    ColName_[COL_CURRVALUE] = _("Curr. total value");
-    ColName_[COL_PRICEDATE] = _("Price Date");
-    ColName_[COL_COMMISSION]= _("Commission");
-    ColName_[COL_NOTES]     = _("Notes");
 
     wxSize imageSize(16, 16);
     m_imageList = new wxImageList(imageSize.GetWidth(), imageSize.GetHeight());
     m_imageList->Add(wxBitmap(wxImage(uparrow_xpm).Scale(16, 16)));
-    m_imageList->Add(wxBitmap(wxImage(downarrow_red_xpm).Scale(16, 16)));
-    m_imageList->Add(wxBitmap(wxImage(uparrow_xpm).Scale(16, 16)));
     m_imageList->Add(wxBitmap(wxImage(downarrow_xpm).Scale(16, 16)));
+    m_imageList->Add(wxBitmap(wxImage(uparrow_xpm).Scale(16, 16)));
+    m_imageList->Add(wxBitmap(wxImage(uparrow_xpm).Scale(16, 16)));
+    m_imageList->Add(wxBitmap(wxImage(uparrow_xpm).Scale(16, 16)));
+    m_imageList->Add(wxBitmap(wxImage(uparrow_xpm).Scale(16, 16)));
+    m_imageList->Add(wxBitmap(wxImage(uparrow_xpm).Scale(16, 16)));
+    m_imageList->Add(wxBitmap(wxImage(uparrow_xpm).Scale(16, 16)));
+    m_imageList->Add(wxBitmap(wxImage(downarrow_red_xpm).Scale(16, 16)));
 
     SetImageList(m_imageList, wxIMAGE_LIST_SMALL);
-    wxListItem itemCol;
-
-    for (const auto&column : ColName_)
-    {
-        itemCol.SetText(column.second);
-        InsertColumn(column.first, column.second, (column.first == 1 || column.first<4 || column.first>10 || column.first == 12
-            ? wxLIST_FORMAT_LEFT : wxLIST_FORMAT_RIGHT));
-
-        int col_x = Model_Setting::instance().GetIntSetting(wxString::Format("STOCKS_COL%d_WIDTH", column.first), wxLIST_AUTOSIZE_USEHEADER);
-        SetColumnWidth(column.first, col_x);
-    }
 
     // load the global variables
     m_selected_col = Model_Setting::instance().GetIntSetting("STOCKS_SORT_COL", col_sort());
@@ -426,7 +406,7 @@ void mmStocksPanel::CreateControls()
         , wxID_ANY, wxDefaultPosition, wxSize(200, 200)
         , wxSP_3DBORDER | wxSP_3DSASH | wxNO_BORDER);
 
-    listCtrlAccount_ = new StocksListCtrl(this, itemSplitterWindow10, wxID_ANY);
+    listCtrlAccount_ = new StocksListCtrl(this, itemSplitterWindow10, mmID_STOCK_LIST);
 
     wxPanel* BottomPanel = new wxPanel(itemSplitterWindow10, wxID_ANY
         , wxDefaultPosition, wxDefaultSize, wxNO_BORDER | wxTAB_TRAVERSAL);

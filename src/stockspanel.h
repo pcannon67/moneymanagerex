@@ -52,7 +52,6 @@ public:
     void OnOrganizeAttachments(wxCommandEvent& event);
     void OnOpenAttachment(wxCommandEvent& event);
     long get_selectedIndex() { return m_selected_row; }
-    int getColumnsNumber() { return ColName_.size(); }
     int col_sort() { return COL_DATE; }
     wxString getStockInfo(int selectedIndex) const;
     /* Helper Functions/data */
@@ -95,7 +94,6 @@ private:
         COL_NOTES,
         COL_MAX, // number of columns
     };
-    std::map<int, wxString> ColName_;
     wxImageList* m_imageList;
     double getGainLoss(long item) const;
     void sortTable();
